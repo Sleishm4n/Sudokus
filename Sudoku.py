@@ -47,11 +47,11 @@ def solveSudokuRec(sudoku, row, col):
 
     return False
 
-def solveSudoku(mat):
-    solveSudokuRec(mat, 0, 0)
+def solveSudoku(sudoku):
+    solveSudokuRec(sudoku, 0, 0)
 
 if __name__ == "__main__":
-    # initialsation of sudoku
+    # initialisation of sudoku
     sudoku = [
         [2, 0, 3, 0, 0, 9, 5, 0, 0],
         [1, 9, 5, 0, 0, 2, 4, 8, 0],
