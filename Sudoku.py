@@ -25,13 +25,12 @@ def validNum(sudoku, row, col, num):
 def solveSudokuRec(sudoku, row, col):
 
     # base case reached nth column of the last row
-    if row == 8 and col == 9:
+    if row == 9:
         return True
 
     # if last column reached in row, move to next row
     if col == 9:
-        row += 1
-        col = 0
+        return solveSudokuRec(sudoku, row + 1, 0)
 
     # if a number from 1-9 in box then move on
     if sudoku[row][col] != 0:
