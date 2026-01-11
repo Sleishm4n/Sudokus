@@ -71,19 +71,28 @@ int solveSudoku(int *sudoku, int row, int col)
 
 int main()
 {
-	int sudoku[9][9] = {
-		{2, 0, 3, 0, 0, 9, 5, 0, 0},
-		{1, 9, 5, 0, 0, 2, 4, 8, 0},
-		{0, 0, 0, 8, 0, 5, 2, 1, 9},
-		{0, 2, 0, 0, 5, 0, 6, 0, 4},
-		{4, 5, 9, 0, 0, 0, 0, 0, 1},
-		{0, 0, 0, 7, 8, 4, 0, 0, 5},
-		{0, 0, 0, 3, 0, 0, 1, 4, 8},
-		{9, 6, 0, 0, 4, 0, 0, 5, 0},
-		{3, 1, 0, 0, 2, 0, 0, 0, 0}};
+	int sudoku[9][9];
+
+	FILE *fptr = fopen("./sudoku.txt", "r");
+
+	for (int i = 0; i < 9; i++) {
+		for (int j = 0; j < 9; j++) {
+			fscanf(fptr, "%d", &sudoku[i][j]);
+		}
+	}
+
+	fclose(fptr);
 
 	solveSudoku(&sudoku[0][0], 0, 0);
-	print(&sudoku[0][0]);
+
+	FILE *outfptr = fopen("./sudoku_solved.txt", "w");
+	for (int i = 0; i < 9; i++) {
+		for (int j = 0; j < 9; j++) {
+			fprintf(outfptr, "%d ", sudoku[i][j]);
+		}
+		fprintf(outfptr, "\n");
+	}
+	fclose(outfptr);
 
 	return 0;
 }

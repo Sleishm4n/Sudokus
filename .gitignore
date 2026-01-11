@@ -1,1 +1,16 @@
-temp
+# Sudoku data files
+sudoku.txt
+sudoku_solved.txt
+
+# Python
+__pycache__/
+*.pyc
+
+# C/C++ binaries
+Sudoku
+SudokuPointers
+*.o
+*.obj
+
+# Java binaries
+*.class
