@@ -1,14 +1,16 @@
 import os
 from pathlib import Path
 import subprocess
+import time
 
-SUPPORTED_FILES = [".py", ".java", ".c", ".cpp"]
+SUPPORTED_FILES = [".py", ".java", ".c", ".cpp", ".rs"]
 
 LANG_COMMANDS = {
     ".py": lambda f: ["python3", str(f)],
     ".c": lambda f: ["make", f.stem],
     ".cpp": lambda f: ["make", f.stem],
-    ".java": lambda f: ["javac", f.name, "&&", "java", f.stem]
+    ".java": lambda f: ["javac", f.name, "&&", "java", f.stem],
+    ".rs": lambda f: ["rustc", f.name]
 }
 
 def load_sudoku(filename):
@@ -53,16 +55,24 @@ def get_user_selection(num_files):
 
 def run(file):
     ext = file.suffix
+
+    start = time.perf_counter()
+
     try:
         if ext == ".java":
             run_java(file)
-        elif ext == ".c":
+        elif ext in [".c", ".cpp"]:
             run_c(file)
+        elif ext == ".rs":
+            run_rust(file)
         else:
             command = LANG_COMMANDS[file.suffix](file)
             subprocess.run(command, check=True)
     except subprocess.CalledProcessError:
         print(f"Error: {file.name} failed to run. Check compilation or missing dependencies.")
+
+    end = time.perf_counter()
+    print(f"{str(file)} solved the Sudoku in {end-start:.3f} seconds.\n")
 
 def run_java(file):
     subprocess.run(["javac", str(file)], check=True)
@@ -73,12 +83,21 @@ def run_c(file):
     output = file.stem
     exe_name = output + (".exe" if os.name == "nt" else "")
     try:
-        # Compile (optional, skip if up-to-date)
+        # Compile
         subprocess.run([compiler, str(file), "-o", exe_name], check=True)
         # Run executable
         subprocess.run([f"./{exe_name}"], check=True)
     except subprocess.CalledProcessError:
         print(f"Error: {file.name} failed to compile or run.")
+
+def run_rust(file):
+    exe_name = file.stem + ".exe"
+    try:
+        subprocess.run(["rustc", str(file)], check=True)
+        subprocess.run([exe_name], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error: {file.name} failed to compile or run.")
+        print(e)
 
 def launch():
     files = get_files(programs_dir)

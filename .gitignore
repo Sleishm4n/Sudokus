@@ -14,3 +14,7 @@ SudokuPointers
 
 # Java binaries
 *.class
+
+# Rust binaries
+*.exe
+*.pdb
