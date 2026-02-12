@@ -74,7 +74,18 @@ def removeNums(sudoku, clues):
 if __name__ == "__main__":
     # Create a Sudoku puzzle
     # Difficulty level: 30-35 (easy), 40-45 (medium), 50-55 (hard)
-    puzzle, solution = createSudoku(42)
+    print("What level of difficulty? ")
+    print("30-35 (easy), 40-45 (medium), 50-55 (hard)")
+    while True:
+        try:
+            difficulty = int(input("Difficulty: "))
+            if difficulty >= 30 and difficulty <= 55:
+                break
+        except ValueError:
+            pass
+        print("Invalid selection")
+
+    puzzle, solution = createSudoku(difficulty)
 
     with open("./sudoku.txt", "w") as file:
         for row in puzzle:
