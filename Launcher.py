@@ -10,17 +10,19 @@ LANG_COMMANDS = {
     ".c": lambda f: ["make", f.stem],
     ".cpp": lambda f: ["make", f.stem],
     ".java": lambda f: ["javac", f.name, "&&", "java", f.stem],
-    ".rs": lambda f: ["rustc", f.name]
+    ".rs": lambda f: ["rustc", f.name],
 }
+
 
 def load_sudoku(filename):
     file = open(filename)
     sudoku = []
     for line in file:
         sudoku.append([int(x) for x in line.split()])
-    
+
     return sudoku
-    
+
+
 def display_sudoku(filename):
     sudoku = load_sudoku(filename)
     print()
@@ -35,13 +37,24 @@ def display_sudoku(filename):
         print()
     print()
 
-def get_files(programs_dir):
-    return [f for f in programs_dir.iterdir()
-            if f.is_file() and f.suffix in SUPPORTED_FILES and f.name != "SudokuCreator.py"]
 
-def display_files(files):
-    for i, file in enumerate(files, 1):
-        print(f"{i}: {file}")
+def get_implementations(languages_dir):
+    implementations = []
+
+    for item in languages_dir.rglob("*"):
+        if item.is_file() and item.suffix in SUPPORTED_FILES:
+            rel_path = item.relative_to(languages_dir)
+            implementations.append((str(rel_path), item))
+
+    return sorted(implementations)
+
+
+def display_implementations(implementations):
+    print("\n" + "=" * 60)
+    for i, (display_name, _) in enumerate(implementations, 1):
+        print(f"{i:2d}. {display_name}")
+    print("=" * 60)
+
 
 def get_user_selection(num_files):
     while True:
@@ -52,6 +65,7 @@ def get_user_selection(num_files):
         except ValueError:
             pass
         print("Invalid selection")
+
 
 def run(file):
     ext = file.suffix
@@ -69,14 +83,22 @@ def run(file):
             command = LANG_COMMANDS[file.suffix](file)
             subprocess.run(command, check=True)
     except subprocess.CalledProcessError:
-        print(f"Error: {file.name} failed to run. Check compilation or missing dependencies.")
+        print(
+            f"Error: {file.name} failed to run. Check compilation or missing dependencies."
+        )
 
     end = time.perf_counter()
-    print(f"{str(file)} solved the Sudoku in {end-start:.3f} seconds.\n")
+    print(f"\n{str(file)} solved the Sudoku in {end-start:.3f} seconds.")
+
 
 def run_java(file):
-    subprocess.run(["javac", str(file)], check=True)
-    subprocess.run(["java", f"programs.{file.stem}"], check=True)
+    abs_path = file.resolve()
+
+    subprocess.run(["javac", str(abs_path)], check=True, cwd=file.parent)
+
+    # Run from the file's directory (no package prefix needed)
+    subprocess.run(["java", file.stem], check=True, cwd=file.parent)
+
 
 def run_c(file):
     compiler = "gcc" if file.suffix == ".c" else "g++"
@@ -90,46 +112,87 @@ def run_c(file):
     except subprocess.CalledProcessError:
         print(f"Error: {file.name} failed to compile or run.")
 
+
 def run_rust(file):
-    exe_name = file.stem + ".exe"
+    output_dir = Path("compiled")
+    output_dir.mkdir(exist_ok=True)
+
+    exe_name = output_dir / f"{file.stem}_rust"
+    if os.name == "nt":
+        exe_name = exe_name.with_suffix(".exe")
+
     try:
-        subprocess.run(["rustc", str(file)], check=True)
-        subprocess.run([exe_name], check=True)
+        subprocess.run(["rustc", str(file), "-o", str(exe_name)], check=True)
+        subprocess.run([str(exe_name)], check=True)
     except subprocess.CalledProcessError as e:
         print(f"Error: {file.name} failed to compile or run.")
         print(e)
 
+
+def create_new_puzzle():
+    """Create a new puzzle using SudokuCreator."""
+    creator = Path("utils/SudokuCreator.py")
+    if creator.exists():
+        print("\nGenerating new puzzle...\n")
+        subprocess.run(["python3", str(creator)], check=True)
+        return True
+    else:
+        return False
+
+
 def launch():
-    files = get_files(programs_dir)
-    display_files(files)
-    selection = get_user_selection(len(files))
-    run(files[selection])
-    display_sudoku("./sudoku_solved.txt")
+    languages_dir = Path("languages")
+    puzzle_file = Path("puzzles/sudoku_9_9.txt")
+    solved_file = Path("puzzles/sudoku_9_9_solved.txt")
+
+    implementations = get_implementations(languages_dir)
+    display_implementations(implementations)
+    selection = get_user_selection(len(implementations))
+    _, file = implementations[selection]
+
+    run(file)
+
+    if solved_file.exists():
+        print("\nSolved puzzle:")
+        display_sudoku(solved_file)
+
 
 def welcome():
-    print(" 1: Make new sudoku \n 2: See current sudoku \n 3: Enter program selection")
+    """Main menu."""
+    print("\n" + "=" * 60)
+    print("1: Make new sudoku")
+    print("2: See current sudoku")
+    print("3: Enter program selection")
+    print("4: Exit")
+    print("=" * 60)
 
     while True:
         try:
-            choice = int(input("Enter choice > "))
-            if 1 <= choice <= 3:
+            choice = int(input("\nEnter choice > "))
+            if 1 <= choice <= 4:
                 break
         except ValueError:
             pass
+        except KeyboardInterrupt:
+            print("\n\nExiting Sudoku Project. Goodbye!")
+            exit(0)
         print("Invalid selection")
 
     if choice == 1:
-        creator_file = programs_dir / "SudokuCreator.py"
-        run(creator_file)
-        display_sudoku("./sudoku.txt")
+        if create_new_puzzle():
+            display_sudoku("puzzles/sudoku_9_9.txt")
         welcome()
     elif choice == 2:
-        display_sudoku("./sudoku.txt")
+        display_sudoku("puzzles/sudoku_9_9.txt")
         welcome()
-    else:
+    elif choice == 3:
         launch()
+        welcome()
+    else:  # choice == 4
+        print("\nExiting Sudoku Project. Goodbye!")
+        exit(0)
+
 
 if __name__ == "__main__":
-    programs_dir = Path("./programs")
     print("Welcome to the Sudoku Project...")
     welcome()

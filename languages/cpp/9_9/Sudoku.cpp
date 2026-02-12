@@ -67,25 +67,29 @@ int main()
 {
     int sudoku[9][9];
 
-	FILE *fptr = fopen("./sudoku.txt", "r");
+    FILE *fptr = fopen("puzzles/sudoku_9_9.txt", "r");
 
-	for (int i = 0; i < 9; i++) {
-		for (int j = 0; j < 9; j++) {
-			fscanf(fptr, "%d", &sudoku[i][j]);
-		}
-	}
+    for (int i = 0; i < 9; i++)
+    {
+        for (int j = 0; j < 9; j++)
+        {
+            fscanf(fptr, "%d", &sudoku[i][j]);
+        }
+    }
 
-	fclose(fptr);
-	solveSudoku(sudoku, 0, 0);
+    fclose(fptr);
+    solveSudoku(sudoku, 0, 0);
 
-	FILE *outfptr = fopen("./sudoku_solved.txt", "w");
-	for (int i = 0; i < 9; i++) {
-		for (int j = 0; j < 9; j++) {
-			fprintf(outfptr, "%d ", sudoku[i][j]);
-		}
-		fprintf(outfptr, "\n");
-	}
-	fclose(outfptr);
+    FILE *outfptr = fopen("puzzles/sudoku_9_9_solved.txt", "w");
+    for (int i = 0; i < 9; i++)
+    {
+        for (int j = 0; j < 9; j++)
+        {
+            fprintf(outfptr, "%d ", sudoku[i][j]);
+        }
+        fprintf(outfptr, "\n");
+    }
+    fclose(outfptr);
 
-	return 0;
+    return 0;
 }

@@ -1,6 +1,6 @@
 use std::fs::File;
-use std::io::{BufRead, BufReader};
 use std::io::Write;
+use std::io::{BufRead, BufReader};
 
 fn valid_num(sudoku: &[[i32; 9]; 9], row: usize, col: usize, num: i32) -> bool {
     for i in 0..9 {
@@ -87,9 +87,9 @@ fn save_sudoku(path: &str, sudoku: &[[i32; 9]; 9]) {
 }
 
 fn main() {
-    let mut sudoku = read_sudoku("./sudoku.txt");
+    let mut sudoku = read_sudoku("puzzles/sudoku_9_9.txt");
 
     solve_sudoku(&mut sudoku, 0, 0);
 
-    save_sudoku("./sudoku_solved.txt", &sudoku);
+    save_sudoku("puzzles/sudoku_9_9_solved.txt", &sudoku);
 }

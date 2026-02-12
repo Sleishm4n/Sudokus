@@ -1,20 +1,21 @@
-# Sudoku data files
-sudoku.txt
-sudoku_solved.txt
-
-# Python
-__pycache__/
-*.pyc
-
-# C/C++ binaries
-Sudoku
-SudokuPointers
-*.o
-*.obj
-
-# Java binaries
-*.class
-
-# Rust binaries
+# Compiled executables
+compiled/
 *.exe
 *.pdb
+*.class
+*.o
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Puzzles (generated files)
+puzzles/
+
+# Rust
+*.rlib
+*.rmeta
+
+# Java
+*.jar
