@@ -19,7 +19,17 @@ def load_sudoku(filename):
     sudoku = []
     for line in file:
         sudoku.append([int(x) for x in line.split()])
+    return sudoku
 
+
+def load_superdoku(filename):
+    file = open(filename)
+    sudoku = []
+    for line in file:
+        row = []
+        for x in line.split():
+            row.append(int(x) if x.isdigit() else x)
+        sudoku.append(row)
     return sudoku
 
 
@@ -38,14 +48,27 @@ def display_sudoku(filename):
     print()
 
 
+def display_superdoku(filename):
+    sudoku = load_superdoku(filename)
+    print()
+    for i in range(16):
+        if i % 4 == 0 and i != 0:
+            print("------------+-------------+-------------+------------")
+        for j in range(16):
+            if j % 4 == 0 and j != 0:
+                print("|", end=" ")
+            cell = sudoku[i][j]
+            print(f"{cell if cell != 0 else '.':>2}", end=" ")
+        print()
+    print()
+
+
 def get_implementations(languages_dir):
     implementations = []
-
     for item in languages_dir.rglob("*"):
         if item.is_file() and item.suffix in SUPPORTED_FILES:
             rel_path = item.relative_to(languages_dir)
             implementations.append((str(rel_path), item))
-
     return sorted(implementations)
 
 
@@ -130,20 +153,27 @@ def run_rust(file):
 
 
 def create_new_puzzle():
-    """Create a new puzzle using SudokuCreator."""
-    creator = Path("utils/SudokuCreator.py")
+    creator = Path("utils/SudokuCreator9_9.py")
     if creator.exists():
         print("\nGenerating new puzzle...\n")
         subprocess.run(["python3", str(creator)], check=True)
         return True
-    else:
-        return False
+    print("Error: SudokuCreator9_9.py not found.")
+    return False
+
+
+def create_new_superdoku_puzzle():
+    creator = Path("utils/SuperdukoCreator.py")
+    if creator.exists():
+        print("\nGenerating new superdoku puzzle...\n")
+        subprocess.run(["python3", str(creator)], check=True)
+        return True
+    print("Error: SuperdukoCreator.py not found.")
+    return False
 
 
 def launch():
     languages_dir = Path("languages")
-    puzzle_file = Path("puzzles/sudoku_9_9.txt")
-    solved_file = Path("puzzles/sudoku_9_9_solved.txt")
 
     implementations = get_implementations(languages_dir)
     display_implementations(implementations)
@@ -152,24 +182,32 @@ def launch():
 
     run(file)
 
-    if solved_file.exists():
-        print("\nSolved puzzle:")
-        display_sudoku(solved_file)
+    if "superduk" in str(file).lower():
+        solved_file = Path("puzzles/superdoku_solved.txt")
+        if solved_file.exists():
+            print("\nSolved superdoku:")
+            display_superdoku(str(solved_file))
+    else:
+        solved_file = Path("puzzles/sudoku_9_9_solved.txt")
+        if solved_file.exists():
+            print("\nSolved puzzle:")
+            display_sudoku(str(solved_file))
 
 
 def welcome():
-    """Main menu."""
     print("\n" + "=" * 60)
     print("1: Make new sudoku")
     print("2: See current sudoku")
-    print("3: Enter program selection")
-    print("4: Exit")
+    print("3: Run a solver")
+    print("4: Make new superdoku")
+    print("5: See current superdoku")
+    print("6: Exit")
     print("=" * 60)
 
     while True:
         try:
             choice = int(input("\nEnter choice > "))
-            if 1 <= choice <= 4:
+            if 1 <= choice <= 6:
                 break
         except ValueError:
             pass
@@ -188,7 +226,14 @@ def welcome():
     elif choice == 3:
         launch()
         welcome()
-    else:  # choice == 4
+    elif choice == 4:
+        if create_new_superdoku_puzzle():
+            display_superdoku("puzzles/superdoku.txt")
+        welcome()
+    elif choice == 5:
+        display_superdoku("puzzles/superdoku.txt")
+        welcome()
+    else:
         print("\nExiting Sudoku Project. Goodbye!")
         exit(0)
 

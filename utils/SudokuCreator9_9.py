@@ -2,12 +2,10 @@ import random
 import sys
 from pathlib import Path
 
-# Add the languages directory to the path so we can import Sudoku
 sys.path.insert(
     0, str(Path(__file__).parent.parent / "languages" / "python" / "basic" / "9_9")
 )
 import Sudoku
-
 
 def validNum(sudoku, row, col, num):
     # check if num exists in column
@@ -35,12 +33,10 @@ def validNum(sudoku, row, col, num):
 def createSudoku(clues):
     sudoku = [[0 for _ in range(9)] for _ in range(9)]
     fillSudoku(sudoku)
-    solution = [row[:] for row in sudoku]
-
+    
     removeNums(sudoku, clues)
 
     return sudoku
-
 
 def fillSudoku(sudoku):
     for row in range(9):
@@ -97,15 +93,9 @@ if __name__ == "__main__":
     puzzle = createSudoku(difficulty)
 
     puzzle_file = Path("puzzles/sudoku_9_9.txt")
-    # solution_file = Path("puzzles/sudoku_9_9_solved.txt")
 
     with open(puzzle_file, "w") as file:
         for row in puzzle:
             file.write(" ".join(str(x) for x in row) + "\n")
 
-    # with open(solution_file, "w") as file:
-    #     for row in solution:
-    #         file.write(" ".join(str(x) for x in row) + "\n")
-
     print(f"\nPuzzle saved to {puzzle_file}")
-    # print(f"✓ Solution saved to {solution_file}")
